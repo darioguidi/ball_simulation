@@ -15,7 +15,7 @@ LDFLAGS = -L/mingw64/lib -lmingw32 -lSDL2main -lSDL2 -mwindows
 all: $(TARGET)
 
 $(TARGET): $(SRC)
-	$(CC) -o $(TARGET) $(SRC) $(CFLAGS) $(LDFLAGS)
+	$(CC) -o $(TARGET).exe $(SRC) $(CFLAGS) $(LDFLAGS)
 
 # Pulizia dei file compilati
 clean:
