@@ -65,11 +65,9 @@ struct Point* generate_ball(int raggio)
 int main(int argc, char* argv[])
 {
     printf("Inserire raggio della sfera\n");
-    fflush(stdout);
 
     int r=1200;
     scanf("%d",&r);
-    fflush(stdout);
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("Errore nella inizializzazone di SDL\n");
