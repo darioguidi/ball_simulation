@@ -62,7 +62,7 @@ struct Point* generate_ball(int raggio)
 }
 
 // Main
-int main(void)
+int main(int argc, char* argv[])
 {
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("Errore nella inizializzazone di SDL\n");
@@ -90,7 +90,7 @@ int main(void)
         return 1;
     }
 
-    struct Point *ball = generate_ball(10);
+    struct Point *ball = generate_ball(100);
 
     int running = 1;
     SDL_Event event;

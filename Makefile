@@ -7,9 +7,9 @@ SRC = main.c
 # Comando del compilatore
 CC = gcc
 
-# Flag per ottenere le opzioni di SDL2
-CFLAGS = $(shell sdl2-config --cflags)
-LDFLAGS = $(shell sdl2-config --libs)
+# Flag per SDL2 (hardcoded per MSYS2 64bit)
+CFLAGS = -I/mingw64/include/SDL2 -D_REENTRANT
+LDFLAGS = -L/mingw64/lib -lmingw32 -lSDL2main -lSDL2 -mwindows
 
 # Regola principale
 all: $(TARGET)
