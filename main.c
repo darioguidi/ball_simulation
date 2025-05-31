@@ -7,29 +7,33 @@
 #define SCREEN_OFFSET_X SCREEN_WIDTH/2
 #define SCREEN_OFFSET_Y SCREEN_HEIGHT/2
 #define PI 3.141592653589793
-#define SIZE_POINT 5
+#define CONSTANT_GTAVITATIONAL = 9,80
+#define SIZE_POINT_SPHERE 2
+#define SIZE_POINT_SPACE 1
 
 float phi = 5;
 float theta = 5; 
 
 
 // Struct - Point
-struct Point {
+typedef struct Point {
     int x;
     int y;
     int z;
-};
+} Point;
 
+
+// Sfera------------------------------------------------------------------------
 // Disegna un singolo punto
 void draw_point(SDL_Renderer *renderer, int x, int y)
 {
-    SDL_Rect rect = (SDL_Rect) {x,y,SIZE_POINT,SIZE_POINT};
+    SDL_Rect rect = (SDL_Rect) {x,y,SIZE_POINT_SPHERE,SIZE_POINT_SPHERE};
     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
     SDL_RenderFillRect(renderer,&rect);
 }
 
 // Disegnare il punto applicata la trasformazione
-void draw_point_3d(SDL_Renderer *renderer, struct Point point)
+void draw_point_3d(SDL_Renderer *renderer, Point point, float massa)
 {
     float x = point.x;
     float y = point.y;
@@ -48,16 +52,16 @@ void draw_point_3d(SDL_Renderer *renderer, struct Point point)
     draw_point(renderer, screen_x, screen_y);
 }
 
-void draw_point_3d_array(SDL_Renderer *renderer, struct Point *ball, int total_point)
+void draw_point_3d_array(SDL_Renderer *renderer, Point *ball, int total_point, float massa)
 {
     for(int i=0;i<total_point;i++){
-        draw_point_3d(renderer, *(ball+i));
+        draw_point_3d(renderer, *(ball+i), massa);
     }
 }
 
-struct Point* generate_ball(int raggio, int total_number_point)
+Point* generate_ball(int raggio, int total_number_point)
 {
-    struct Point *ball = malloc(total_number_point*sizeof(struct Point));
+    Point *ball = malloc(total_number_point*sizeof(struct Point));
     for(int i=0;i<total_number_point;i++){
 
         float u = (float)rand() / RAND_MAX;
@@ -75,13 +79,30 @@ struct Point* generate_ball(int raggio, int total_number_point)
     return ball;
 }
 
+// Spazio------------------------------------------------------------------------
+
+// Genera il piano
+Point* generate_space(int size){
+    Point *space = malloc(size*sizeof(Point));
+    for (int i=0; i<size; i++){
+        *(space+i) = (Point) {0,1,1};
+    }
+    return space;
+}
+
+
 // Main
 int main(int argc, char* argv[])
 {
-    printf("Inserire raggio della sfera\n");
+    int r;
+    float massa_sfera;
 
-    int r=500;
+    printf("Inserire raggio della sfera\n");
     scanf("%d",&r);
+
+    printf("Inserire la massa della sfera: ");
+    scanf("%f", &massa_sfera);
+
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("Errore nella inizializzazone di SDL\n");
@@ -110,8 +131,9 @@ int main(int argc, char* argv[])
     }
 
     // int total_number_point = 4*PI*(r)*(r);
-    int total_number_point = 400;
-    struct Point *ball = generate_ball(r, total_number_point);
+    int total_number_point = 1000;
+    Point *ball = generate_ball(r, total_number_point);
+    Point *space = generate_space(900);
 
     int running = 1;
     SDL_Event event;
@@ -127,17 +149,18 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer,0,0,0,255);
         SDL_RenderClear(renderer);
             
-        draw_point_3d_array(renderer, ball, total_number_point);
+        draw_point_3d_array(renderer, ball, total_number_point, massa_sfera);
         SDL_RenderPresent(renderer);
 
         SDL_RenderClear(renderer);
         SDL_Delay(16);
             
-        phi+=0.05;
-        theta+=0.05;
+        phi+=0.002;
+        theta+=0.002;
     }
 
     free(ball);
+    free(space);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
