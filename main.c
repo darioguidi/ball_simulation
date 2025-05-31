@@ -22,7 +22,6 @@ typedef struct Point {
     int z;
 } Point;
 
-
 // Sfera------------------------------------------------------------------------
 // Disegna un singolo punto
 void draw_point(SDL_Renderer *renderer, int x, int y)
@@ -131,7 +130,7 @@ int main(int argc, char* argv[])
     }
 
     // int total_number_point = 4*PI*(r)*(r);
-    int total_number_point = 1000;
+    int total_number_point = 1500;
     Point *ball = generate_ball(r, total_number_point);
     Point *space = generate_space(900);
 
@@ -157,6 +156,8 @@ int main(int argc, char* argv[])
             
         phi+=0.002;
         theta+=0.002;
+
+        printf("%f and %f \n", theta, phi);
     }
 
     free(ball);
