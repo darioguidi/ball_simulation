@@ -2,8 +2,8 @@
 #include <SDL2/SDL.h>
 #include <math.h>
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 700
+#define SCREEN_HEIGHT 700
 #define SCREEN_OFFSET_X SCREEN_WIDTH/2
 #define SCREEN_OFFSET_Y SCREEN_HEIGHT/2
 #define PI 3.141592653589793
@@ -31,29 +31,43 @@ void draw_point(SDL_Renderer *renderer, int x, int y)
 // Disegnare il punto applicata la trasformazione
 void draw_point_3d(SDL_Renderer *renderer, struct Point point)
 {
-    int x = point.x;
-    int y = point.y;
-    int z = point.z; 
+    float x = point.x;
+    float y = point.y;
+    float z = point.z;
 
-    draw_point(renderer, x,y);
+    // Rotazione attorno a Y
+    float x_rot = x * cos(theta) - z * sin(theta);
+    float z_rot = x * sin(theta) + z * cos(theta);
+
+    // Rotazione attorno a X
+    float y_rot = y * cos(phi) - z_rot * sin(phi);
+
+    int screen_x = (int)(SCREEN_OFFSET_X + x_rot / 10);  // scala per stare dentro la finestra
+    int screen_y = (int)(SCREEN_OFFSET_Y + y_rot / 10);
+
+    draw_point(renderer, screen_x, screen_y);
 }
 
-void draw_point_3d_array(SDL_Renderer *renderer, struct Point *ball)
+void draw_point_3d_array(SDL_Renderer *renderer, struct Point *ball, int total_point)
 {
-    for(int i=0;i<10;i++){
+    for(int i=0;i<total_point;i++){
         draw_point_3d(renderer, *(ball+i));
     }
 }
 
-struct Point* generate_ball(int raggio)
+struct Point* generate_ball(int raggio, int total_number_point)
 {
-    int total_number_point = 4*PI*(raggio)*(raggio);
     struct Point *ball = malloc(total_number_point*sizeof(struct Point));
-
     for(int i=0;i<total_number_point;i++){
-        int x_2d  = SCREEN_OFFSET_X+raggio*sin(phi)*cos(theta);
-        int y_2d  = SCREEN_OFFSET_Y+raggio*sin(phi)*sin(theta);
-        int z_2d = SCREEN_OFFSET_X+raggio*cos(phi);
+
+        float u = (float)rand() / RAND_MAX;
+        float v = (float)rand() / RAND_MAX;
+        float theta_point = 2 * PI * u;
+        float phi_point = acos(2 * v - 1);
+
+        int x_2d = raggio * sin(phi_point) * cos(theta_point);
+        int y_2d = raggio * sin(phi_point) * sin(theta_point);
+        int z_2d = raggio * cos(phi_point);
 
         *(ball+i) = (struct Point) {x_2d,y_2d,z_2d};
     }
@@ -66,7 +80,7 @@ int main(int argc, char* argv[])
 {
     printf("Inserire raggio della sfera\n");
 
-    int r=1200;
+    int r=500;
     scanf("%d",&r);
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
@@ -75,7 +89,7 @@ int main(int argc, char* argv[])
     }
 
     SDL_Window *window = SDL_CreateWindow(
-        "BALL BALL ball bal...",
+        "sphere",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         SCREEN_WIDTH,
@@ -95,7 +109,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    struct Point *ball = generate_ball(r);
+    // int total_number_point = 4*PI*(r)*(r);
+    int total_number_point = 400;
+    struct Point *ball = generate_ball(r, total_number_point);
 
     int running = 1;
     SDL_Event event;
@@ -106,19 +122,19 @@ int main(int argc, char* argv[])
                 printf("Chiusura programma\n");
                 running=0;
             }
-
-            SDL_SetRenderDrawColor(renderer,0,0,0,255);
-            SDL_RenderClear(renderer);
-            
-            draw_point_3d_array(renderer, ball);
-            SDL_RenderPresent(renderer);
-
-            SDL_RenderClear(renderer);
-            SDL_Delay(16);
-            
-            phi+=0.05;
-            theta+=0.05;
         }
+
+        SDL_SetRenderDrawColor(renderer,0,0,0,255);
+        SDL_RenderClear(renderer);
+            
+        draw_point_3d_array(renderer, ball, total_number_point);
+        SDL_RenderPresent(renderer);
+
+        SDL_RenderClear(renderer);
+        SDL_Delay(16);
+            
+        phi+=0.05;
+        theta+=0.05;
     }
 
     free(ball);
