@@ -102,6 +102,7 @@ int main(int argc, char* argv[])
     printf("Inserire la massa della sfera: ");
     scanf("%f", &massa_sfera);
 
+    r=1200;
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         printf("Errore nella inizializzazone di SDL\n");
